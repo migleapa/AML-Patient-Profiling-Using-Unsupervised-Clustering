@@ -136,7 +136,7 @@ Survival model validation:<br>
 
 ### Unsupervised clustering identifies two AML subgroups:
 
-![image](https://github.com/user-attachments/assets/7f87c55c-59b1-4cc3-9088-b5076963f716)
+![image](https://github.com/user-attachments/assets/8e9d79bf-e523-4a2f-a6f3-9e44a7644f5f)
 
 K-means clustering of DSS data with k=2. 
 <br>
@@ -150,28 +150,28 @@ Volcano plot of drug responses in the drug-resistant group relative to the drug-
 <br>
 ### Comparison of Cell Proliferation Rates Between Resistant and Sensitive Groups:
 
-![image](https://github.com/user-attachments/assets/c28f6f41-493e-4e8e-aa2d-5e2ac5c01704)
+![image](https://github.com/user-attachments/assets/c03d024b-bee1-4254-a682-18673eebe936)
 
 a) Boxplot depicting the distribution of data points across the two groups, along with statistical comparisons between them. b) A scatter plot showing the data points for both
 <br>
 <br>
 ### KSEA identifies significant differences in kinase activity related to cell proliferation, growth, stress response, apoptosis and survival:
 
-![image](https://github.com/user-attachments/assets/5bb4dce4-f4f5-44ed-b131-56be86e6fcde)
+![image](https://github.com/user-attachments/assets/8488a18d-cdb1-419d-8f9f-c18edecd73bc)
 
 a) Limma analysis showing the top 12 differentially expressed phosphoproteins between the groups used for PCA and drug prediction analysis. The phosphoproteins were selected based on their statistical significance. b) SEA: Comparison of kinase enrichment between the experimental groups. c) PCA of the top 12 differentially expressed phosphoproteins. Each data point represents an individual patient, with points coloured according to their respective group. The plot illustrates the separation of the groups based on the phosphoprotein expression profiles.
 <br>
 <br>
 ### Higher prevalence of TP53 and RUNX1 mutations and exclusive del5 abnormality in drug-resistant group:
 
-![image](https://github.com/user-attachments/assets/517319d3-ea73-404d-a103-6b778b2efce2)
+![image](https://github.com/user-attachments/assets/425c9a78-fdca-4940-a249-ca8f265342de)
 
 a) The breakdown of gene mutations and the fraction of each within the drug-sensitive and drug-resistant groups. b) The breakdown of karyotypes and the fraction of each within the drug-sensitive and drug-resistant groups
 <br>
 <br>
 ### Transcriptomic markers predict worse clinical survival in drug-sensitive patients:
 
-![image](https://github.com/user-attachments/assets/fce7da84-a67b-4382-b317-f287d016c341)
+![image](https://github.com/user-attachments/assets/ceb20689-a7f9-4ce9-81e2-f52e37d25f61)
 
 a) Survival plot and risk table comparing drug-resistant and drug-sensitive groups. b) Survival model evaluation using external dataset with selected markers CLIC5, LZTS3, HEPACAM2, COL13A1, HBG1, TFP12, and HEPH. c) Survival model evaluation using HEPH as individual predictor on external dataset.
 <br>
