@@ -17,8 +17,8 @@ This study employs unsupervised clustering techniques to profile patients with a
 #### The DSS dataset was subjected to missing data imputation.<br>
 
 Two Methods Tested:<br>
-•	K-Nearest Neighbours (KNN)[[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20dataset%20Imputation%20with%20KNN.ipynb)<br>
-•	Random Forest (RF)[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/missForest%20imputation%20code.Rmd)<br>
+•	K-Nearest Neighbours (KNN)<br>
+•	Random Forest (RF)<br>
 
  Evaluation Process:<br>
 •	Systematically removed 5% of randomly selected data points.<br>
@@ -41,8 +41,8 @@ Optimized Parameters:<br>
 •	maxiter: Set to 15 (maximum iterations).<br>
 
 Algorithms used:<br>
-•	KNN: scikit-learn library (version 1.5.1).<br>
-•	RF: missForest package (version 4.4.0).<br>
+•	KNN: scikit-learn library (version 1.5.1)[[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20dataset%20Imputation%20with%20KNN.ipynb).<br>
+•	RF: missForest package (version 4.4.0)[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/missForest%20imputation%20code.Rmd).<br>
 
 #### DSS Dataset Preprocessing:<br>
 •	Log2 Transformation - applied to correct skewness in the dataset.<br>
