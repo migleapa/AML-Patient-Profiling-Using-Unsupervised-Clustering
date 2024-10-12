@@ -6,7 +6,7 @@ output: html_notebook
 MissForest - missing data imputation using iterated random forests (Non-parametric)
 
 ```{r}
-# Install and load the package
+Install and load the package
 install.packages("missForest")
 library(missForest)
 
