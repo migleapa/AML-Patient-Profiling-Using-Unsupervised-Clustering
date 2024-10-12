@@ -41,7 +41,7 @@ Optimized Parameters:<br>
 •	maxiter: Set to 15 (maximum iterations).<br>
 
 Software Used:<br>
-•	KNN: R caret package (version 6.0.94).<br>
+•	KNN: scikit-learn library (version 1.5.1).<br>
 •	RF: missForest package (version 4.4.0).<br>
 
 #### DSS Dataset Preprocessing:<br>
