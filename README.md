@@ -6,12 +6,12 @@ This study employs unsupervised clustering techniques to profile patients with a
 
 ## Materials and Methods
 
-Datasets: 
-•	Drug Sensitivity Scores (DSS) - measuring the percentage of relative cell growth inhibition. 
-•	Proliferation rates - representing the change in cell proliferation over time from untreated to treated conditions.  
-•	Proteomic and phosphoproteomic datasets - samples were analysed using an LC-MS/MS system. 
-•	Genomic dataset - generated through targeted DNA next-generation sequencing (NGS), focusing on 54 genes commonly mutated in AML. 
-•	Transcriptomics dataset – consisting of gene counts. 
+Datasets:<br>
+•	Drug Sensitivity Scores (DSS) - measuring the percentage of relative cell growth inhibition.<br>
+•	Proliferation rates - representing the change in cell proliferation over time from untreated to treated conditions.<br>
+•	Proteomic and phosphoproteomic datasets - samples were analysed using an LC-MS/MS system.<br>
+•	Genomic dataset - generated through targeted DNA next-generation sequencing (NGS), focusing on 54 genes commonly mutated in AML.<br>
+•	Transcriptomics dataset – consisting of gene counts.<br>
 
 
 
