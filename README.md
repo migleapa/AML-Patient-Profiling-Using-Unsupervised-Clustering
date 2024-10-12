@@ -71,7 +71,7 @@ Determination of optimal clusters (k):<br>
 •	Method - Silhouette score calculated using the cluster R package (version 2.1.6).<br>
 
 Algorithm used:<br>
-•	KMeans: scikit-learn library (version 1.5.1)[[]Python code](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20data%20UMAP%20and%20K-means%20clustering.ipynb).<br>
+•	KMeans: scikit-learn library (version 1.5.1)[[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20data%20UMAP%20and%20K-means%20clustering.ipynb).<br>
 
 ### Clustering validation:<br>
 A hypergeometric test was conducted to evaluate clustering bias:<br>
