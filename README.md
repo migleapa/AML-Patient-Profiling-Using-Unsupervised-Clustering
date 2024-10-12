@@ -136,9 +136,9 @@ Survival model validation:<br>
 
 ### Unsupervised clustering identifies two AML subgroups:
 
-![image](https://github.com/user-attachments/assets/0d57e7e8-1f11-49e9-b564-0dde3cd169d1)
+![image](https://github.com/user-attachments/assets/7f87c55c-59b1-4cc3-9088-b5076963f716)
 
-K-means clustering of DSS data with k=2. Group labels are based on subsequent analysis. 
+K-means clustering of DSS data with k=2. 
 <br>
 <br>
 ### Identification of drug-sensitive and drug-resistant phenotypes:
