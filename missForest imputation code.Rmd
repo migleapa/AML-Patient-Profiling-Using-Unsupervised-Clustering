@@ -5,73 +5,52 @@ output: html_notebook
 
 MissForest - missing data imputation using iterated random forests (Non-parametric)
 
+
+Installing and loading the packages
 ```{r}
-Install and load the package
 install.packages("missForest")
 library(missForest)
-
+install.packages("doParallel")
+library(doParallel)
 ```
 
-```{r}
-# Parameters for the hypergeometric distribution
-q <- 5         # Number of successes
-m <- 20        # Number of successes in the population
-n <- 30        # Number of failures in the population
-k <- 10        # Number of draws
-
-# Calculate the cumulative probability
-p_value <- phyper(q, m, n, k)
-print(p_value)
-
-```
-
-
-
+Setting a working directory 
 ```{r}
 setwd("~/Documents/MSc Genomics Data Science/Research Project (ML)/Project Data")
 ```
 
-
+Opening the file
 ```{r}
-# Open file
-
-df.dss <- read.csv("DSS_Imputation _redo.csv", row.names = 1)
+df.dss <- read.csv("DSS_Dataset.csv", row.names = 1)
 
 df.dss
-
 ```
 
-Random non-missing values were removed and run with MissForest to test the performance
-
+Removing random non-missing values and running MissForest to test the performance
 ```{r}
 set.seed(123) 
-
-df_copy <- df.dss.complete
-
-# introducing random missing values
-missing_indices <- which(!is.na(df_copy), arr.ind = TRUE) # getting indices of non-missing values
-num_missing <- floor(0.05 * length(missing_indices)) # choosing 5% of the data to be missing
-
-# randomly selecting indices to be set as NA
-missing_sample <- missing_indices[sample(nrow(missing_indices), num_missing), ]
-df_copy[missing_sample] <- NA
-
-
 ```
 
-
+Introducing random missing values
 ```{r}
+df_copy <- df.dss.complete
 
-install.packages("doParallel")
-library(doParallel)
-library(missForest)
+missing_indices <- which(!is.na(df_copy), arr.ind = TRUE) # getting indices of non-missing values
+num_missing <- floor(0.05 * length(missing_indices)) # choosing 5% of the data to be missing
+```
 
+Randomly selecting indices to be set as NA
+```{r}
+missing_sample <- missing_indices[sample(nrow(missing_indices), num_missing), ]
+df_copy[missing_sample] <- NA
+```
+
+Perform missForest imputation
+```{r}
 num_cores <- detectCores() - 1  # Use one less than the total number of available cores
 cl <- makeCluster(num_cores)
 registerDoParallel(cl)
 
-
-# Perform missForest imputation
 imputed_data <- missForest(
   xmis = df_copy,
   maxiter = 15,  # Maximum number of iterations
@@ -82,22 +61,20 @@ imputed_data <- missForest(
  # parallelize = "forests",  # Enable parallel computation
   verbose = TRUE
 )     
+```
 
-# View the OOB error
-print(imputed_data$OOBerror)
-
-# getting the completed data
+Getting the completed data 
+```{r}
 completed_data <- imputed_data$ximp
 ```
 
-
+Viewing the OOB error
 ```{r}
 imputed_data$OOBerror 
 ```
 
-
-``````{r}
-# comparing the imputed values with the original values
+Comparing the imputed values with the original values
+```{r}
 original_values <- df.dss.complete[missing_sample]
 imputed_values <- completed_data[missing_sample]
 
@@ -108,39 +85,32 @@ comparison <- data.frame(
 
 # printing the comparison
 print(comparison)
+```
 
-# Calculate RMSE
+Calculating RMSE and NRMSE
+```{r}
 rmse <- sqrt(mean((original_values - imputed_values)^2))
 
-# Calculate NRMSE
 range_of_actuals <- max(original_values) - min(original_values)
 nrmse <- rmse / range_of_actuals
-
-# Print RMSE and NRMSE
-cat("Root Mean Squared Error (RMSE) of the imputation:", rmse, "\n")
-cat("Normalized Root Mean Squared Error (NRMSE) of the imputation:", nrmse, "\n")
-
-# Creating a comparison dataframe
-comparison <- data.frame(
-  original = original_values,
-  imputed = imputed_values
-)
-
-# Printing the comparison
-print(comparison)
 ```
 
 
-``````{r}
-# evaluating imputation accuracy
-mse <- mean((comparison$original - comparison$imputed)^2, na.rm = TRUE)
-cat("Mean Squared Error (MSE) of Imputation:", mse, "\n")
 
-# calculating the R² value
+Printing RMSE and NRMSE
+```{r}
+cat("Root Mean Squared Error (RMSE) of the imputation:", rmse, "\n")
+cat("Normalized Root Mean Squared Error (NRMSE) of the imputation:", nrmse, "\n")
+```
+
+Calculating the R² value
+```{r}
 r_squared <- cor(comparison$original, comparison$imputed, use = "complete.obs")^2
 cat("R² value:", r_squared, "\n")
+```
 
-# creating the scatter plot
+Creating the scatter plot - model fit
+```{r}
 ggplot(comparison, aes(x = original, y = imputed)) +
   geom_point(color = "blue", alpha = 0.6) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
@@ -153,14 +123,13 @@ ggplot(comparison, aes(x = original, y = imputed)) +
 ```
 
 Performing imputation
-``````{r}
+```{r}
 imputed_data <- missForest(df.dss, ntree = 200, maxiter = 15, replace = TRUE)
-
 completed_data <- imputed_data$ximp
 ```
-
-``````{r}
-write.csv(completed_data, "imputed_DSS_data_complete.csv")
+Saving imputed data
+```{r}
+write.csv(completed_data, "imputed_DSS_data.csv")
 ```
 
 
