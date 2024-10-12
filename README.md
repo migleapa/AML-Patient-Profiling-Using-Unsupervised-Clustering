@@ -40,7 +40,7 @@ Optimized Parameters:<br>
 •	ntrees: Set to 200 (number of trees in the forest).<br>
 •	maxiter: Set to 15 (maximum iterations).<br>
 
-Software Used:<br>
+Algorithms used:<br>
 •	KNN: scikit-learn library (version 1.5.1).<br>
 •	RF: missForest package (version 4.4.0).<br>
 
@@ -70,8 +70,8 @@ UMAP parameter optimization:<br>
 Determination of optimal clusters (k):<br>
 •	Method - Silhouette score calculated using the cluster R package (version 2.1.6).<br>
 
-Clustering implementation:<br>
-•	Algorithm used - KMeans algorithm from the stats R package (version 4.4.0).<br>
+Algorithm used:<br>
+•	KMeans: scikit-learn library (version 1.5.1)[[]Python code](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20data%20UMAP%20and%20K-means%20clustering.ipynb).<br>
 
 ### Clustering validation:<br>
 A hypergeometric test was conducted to evaluate clustering bias:<br>
