@@ -143,7 +143,7 @@ K-means clustering of DSS data with k=2.
 <br>
 ### Identification of drug-sensitive and drug-resistant phenotypes:
 
-![image](https://github.com/user-attachments/assets/0aef49ee-3123-4068-9bfc-552f7311a1e7)
+![image](https://github.com/user-attachments/assets/bf3af380-cc79-4286-886f-5f39e3073ff8)
 
 Volcano plot of drug responses in the drug-resistant group relative to the drug-sensitive group, categorized by functional drug class. The x-axis displays the log2 fold change, while the y-axis represents the -log10 transformed adjusted p-value. 
 <br>
