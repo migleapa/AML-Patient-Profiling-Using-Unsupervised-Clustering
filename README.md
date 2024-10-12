@@ -14,7 +14,7 @@ This study employs unsupervised clustering techniques to profile patients with a
 •	Transcriptomics dataset – consisting of gene counts.<br>
 
 ### Data pre-processing:<br>
-The DSS dataset was subjected to missing data imputation.<br>
+#### The DSS dataset was subjected to missing data imputation.<br>
 
 Two Methods Tested:<br>
 •	K-Nearest Neighbours (KNN)<br>
@@ -44,15 +44,15 @@ Software Used:<br>
 •	KNN: R caret package (version 6.0.94).<br>
 •	RF: missForest package (version 4.4.0).<br>
 
-DSS Dataset Preprocessing:<br>
+#### DSS Dataset Preprocessing:<br>
 •	Log2 Transformation - applied to correct skewness in the dataset.<br>
 •	Min-Max Scaling - standardized feature ranges to ensure equal contribution to Euclidean distance calculations for clustering analysis.<br>
 
-Proteomic and Phosphoproteomic Datasets:<br>
+#### Proteomic and Phosphoproteomic Datasets:<br>
 •	Log2 Transformation - conducted to stabilize variance and achieve homoscedasticity, essential for linear modeling (e.g., Linear Models for Microarray Data - limma).<br>
 •	Min-Max Scaling -ensured uniform weighting of all proteins or phosphorylation sites during modeling.<br>
 
-Transcriptomic Dataset Processing:<br>
+#### Transcriptomic Dataset Processing:<br>
 •	Utilization of DESeq2 - processed directly on raw count data without prior transformation or scaling.<br>
 •	Filtering Step - excluded genes with fewer than 10 counts across all samples to enhance statistical power and reduce analysis noise.<br>
 
