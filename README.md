@@ -18,7 +18,7 @@ This study employs unsupervised clustering techniques to profile patients with a
 
 Two Methods Tested:<br>
 •	K-Nearest Neighbours (KNN)<br>
-•	Random Forest (RF)[missForest imputation code](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/missForest%20imputation%20code.Rmd).<br>
+•	[Random Forest (RF)](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/missForest%20imputation%20code.Rmd).<br>
 
  Evaluation Process:<br>
 •	Systematically removed 5% of randomly selected data points.<br>
