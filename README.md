@@ -150,28 +150,28 @@ Volcano plot of drug responses in the drug-resistant group relative to the drug-
 <br>
 ### Comparison of Cell Proliferation Rates Between Resistant and Sensitive Groups:
 
-![image](https://github.com/user-attachments/assets/9aadb591-f271-4b45-81a4-239f51e4ab53)
+![image](https://github.com/user-attachments/assets/c28f6f41-493e-4e8e-aa2d-5e2ac5c01704)
 
 a) Boxplot depicting the distribution of data points across the two groups, along with statistical comparisons between them. b) A scatter plot showing the data points for both
 <br>
 <br>
 ### KSEA identifies significant differences in kinase activity related to cell proliferation, growth, stress response, apoptosis and survival:
 
-![image](https://github.com/user-attachments/assets/c1b0cc32-9d9e-49c5-8c1e-21b81b9b49e3)
+![image](https://github.com/user-attachments/assets/5bb4dce4-f4f5-44ed-b131-56be86e6fcde)
 
 a) Limma analysis showing the top 12 differentially expressed phosphoproteins between the groups used for PCA and drug prediction analysis. The phosphoproteins were selected based on their statistical significance. b) SEA: Comparison of kinase enrichment between the experimental groups. c) PCA of the top 12 differentially expressed phosphoproteins. Each data point represents an individual patient, with points coloured according to their respective group. The plot illustrates the separation of the groups based on the phosphoprotein expression profiles.
 <br>
 <br>
 ### Higher prevalence of TP53 and RUNX1 mutations and exclusive del5 abnormality in drug-resistant group:
 
-![image](https://github.com/user-attachments/assets/fc4c5a88-8e96-4d41-8b65-5014ec0004a9)
+![image](https://github.com/user-attachments/assets/517319d3-ea73-404d-a103-6b778b2efce2)
 
 a) The breakdown of gene mutations and the fraction of each within the drug-sensitive and drug-resistant groups. b) The breakdown of karyotypes and the fraction of each within the drug-sensitive and drug-resistant groups
 <br>
 <br>
 ### Transcriptomic markers predict worse clinical survival in drug-sensitive patients:
 
-![image](https://github.com/user-attachments/assets/a5ce7922-cf49-4962-8e61-75c36fe3946e)
+![image](https://github.com/user-attachments/assets/fce7da84-a67b-4382-b317-f287d016c341)
 
 a) Survival plot and risk table comparing drug-resistant and drug-sensitive groups. b) Survival model evaluation using external dataset with selected markers CLIC5, LZTS3, HEPACAM2, COL13A1, HBG1, TFP12, and HEPH. c) Survival model evaluation using HEPH as individual predictor on external dataset.
 <br>
