@@ -17,7 +17,7 @@ This study employs unsupervised clustering techniques to profile patients with a
 #### The DSS dataset was subjected to missing data imputation.<br>
 
 Two Methods Tested:<br>
-•	K-Nearest Neighbours (KNN)<br>
+•	K-Nearest Neighbours (KNN)[[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DSS%20dataset%20Imputation%20with%20KNN.ipynb)<br>
 •	Random Forest (RF)[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/missForest%20imputation%20code.Rmd)<br>
 
  Evaluation Process:<br>
