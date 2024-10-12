@@ -117,13 +117,32 @@ Dataset Split:<br>
 
 Model Optimization:<br>
 •	Performed using 5-fold cross-validation.<br>
-•	Key optimized parameters:<br>
-  o	n_estimators: 200 (number of trees in the forest)<br>
-  o	min_samples_split: 2 (minimum number of samples to split an internal node)<br>
-  o	max_features: 'auto' (number of features considered for the best split).<br>
+•	Key optimized parameters:n_estimators: 200, min_samples_split: 2,max_features: 'auto'.<br>
   
 Model Evaluation:<br>
 •	Performance was evaluated using Mean Squared Error (MSE).<br>
+
+### Survival analysis and validation:<br>
+Survival Analysis:<br>
+•	Kaplan-Meier survival probabilities were computed, and survival plots were generated using the survminer R package (version 3.7.0).<br>
+
+Survival model validation:<br>
+•	The survival prediction model was validated using the external dataset for trancriptomic and phosphoproteomic markers.<br>
+•	The initial dataset's marker values were averaged to define classification thresholds for patient groups. These thresholds were then applied to classify new patients from external datasets based on their marker expressions.<br>
+•	Kaplan-Meier survival analysis was performed again on this new set of classified patients to assess survival differences between the newly classified groups.<br>
+
+
+## Results
+
+### Unsupervised clustering identifies two AML subgroups:
+
+![image](https://github.com/user-attachments/assets/7d546287-08b1-4d45-b6e3-e2a3209bf089)
+
+K-means clustering of DSS data with k=2. Group labels are based on subsequent analysis. 
+
+
+
+
 
 
 
