@@ -89,12 +89,13 @@ Proteomic and phosphoproteomic analysis:<br>
 •	Upregulated and downregulated expressions were identified using log2 fold change (log2FC).<br>
 •	The most significantly expressed phosphoproteins were further analyzed using Kinase-Substrate Enrichment Analysis (KSEA).<br>
 •	Phosphosite annotation performed using the PhosphoSitePlus® Kinome Scan database.<br>
-[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DE%20analysis%20with%20limma%20+%20KSEA%20-%20Phosphoproteomics.Rmd)
+[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DE%20analysis%20with%20limma%20+%20KSEA%20-%20Phosphoproteomics.Rmd)<br>
 
 Transcriptomic analysis:<br>
 •	Conducted using the DESeq2 package (version 1.44.0).<br>
 •	The most significantly differentially expressed genes were used for pathway enrichment analysis.<br>
 •	Gene Ontology (GO) enrichment analysis for biological process pathways was performed using GSEA in the fgsea package (version 1.30.0).<br>
+[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DESeq2%20and%20GSEA.Rmd)<br>
 
 Principal component analysis (PCA):<br>
 •	PCA plots were generated to assess the separation of groups based on transcriptomic and phosphoproteomic markers.<br>
