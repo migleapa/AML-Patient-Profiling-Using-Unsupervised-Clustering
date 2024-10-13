@@ -125,7 +125,7 @@ Algorithm Used:<br>
 
 ### Survival analysis and validation:<br>
 Survival Analysis:<br>
-•	Kaplan-Meier survival probabilities were computed, and survival plots were generated using the survminer R package (version 3.7.0).<br>
+•	Kaplan-Meier survival probabilities were computed, and survival plots were generated using the survminer R package (version 3.7.0). [[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/Kaplan-Meier%20survival%20analysis.Rmd)<br>
 
 Survival model validation:<br>
 •	The survival prediction model was validated using the external dataset for trancriptomic and phosphoproteomic markers.<br>
