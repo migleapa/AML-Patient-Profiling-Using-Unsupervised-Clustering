@@ -103,8 +103,6 @@ Data visualization:<br>
 •	Visualization achieved using the ggplot2 (version 3.5.1) and ComplexHeatmap (version 2.18.0) packages to illustrate differences between the groups.<br>
 
 ### Evaluation of phosphoprotein markers as drug response predictors:<br>
-Algorithm Used:<br>
-•	RandomForestRegressor from the scikit-learn library (version 1.5.1) in Python (version 3.11.4) [[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/RF%20Regressor%20(Multioutput)%20-%20drug%20response%20prediction.ipynb).<br>
 
 Feature Selection:<br>
 •	Phosphoproteins selected based on their effectiveness in separating patient groups from prior PCA analysis.<br>
@@ -121,6 +119,9 @@ Model Optimization:<br>
   
 Model Evaluation:<br>
 •	Performance was evaluated using Mean Squared Error (MSE).<br>
+
+Algorithm Used:<br>
+•	RandomForestRegressor from the scikit-learn library (version 1.5.1) in Python (version 3.11.4) [[Python code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/RF%20Regressor%20(Multioutput)%20-%20drug%20response%20prediction.ipynb).<br>
 
 ### Survival analysis and validation:<br>
 Survival Analysis:<br>
