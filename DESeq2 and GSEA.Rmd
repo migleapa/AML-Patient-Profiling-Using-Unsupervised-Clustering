@@ -1,19 +1,15 @@
 ---
-title: "R Notebook"
+title: "DESeq2 and GSEA"
 output: html_notebook
 ---
 
 
 ```{r}
- # installing the latest version of DEseq2
+ # installing DEseq2
 if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
   BiocManager::install("DESeq2")
-
-```
-
-
-```{r}
 library(DESeq2)
+
 ```
 
 
@@ -22,28 +18,27 @@ library(DESeq2)
 setwd("~/Documents/MSc Genomics Data Science/Research Project (ML)/Project Data")
 
 # reading in the raw read counts
- rawCounts <- read.csv("DSS_imp_transcriptomics_clusters56.csv", row.names=1)
+ rawCounts <- read.csv("DSS_imp_transcriptomics_clusters.csv", row.names=1)
  
-# Replace NA values with 0
+# eeplacing NA values with 0
 rawCounts[is.na(rawCounts)] <- 0
 
-# Round the values in the dataframe
+# rounding the values in the dataframe
 rawCounts <- as.data.frame(apply(rawCounts, 2, round))
  
 head(rawCounts)
 ```
 
-
+Reading in the sample mappings
 ```{r}
-# reading in the sample mappings (order must follow the same order as for the counts file)
 sampleData <- read.csv("sample_groups.csv", header = T)
 
 sampleData
 ```
 
-
+Creating the DEseq2DataSet object
 ```{r}
-# creating the DEseq2DataSet object - measuring the effect of the Patient, controlling for Group differences - two factor design
+# measuring the effect of the Patient, controlling for Group differences - two factor design
 dds <- DESeqDataSetFromMatrix(countData = rawCounts,
                              colData = sampleData,
                              design = ~ Group)
@@ -66,16 +61,14 @@ dds <- dds[keep,]
 ```
 
 
-
+Running DESeq algo
 ```{r}
-# running DESeq algo
 dds <- DESeq(dds, full = mm)
 ```
 
 
-
+Generating differential expression results
 ```{r}
-#  generating differential expression results
 res <- results(dds, contrast=list(c("Groupcluster2")))
 summary(res)
 ```
@@ -88,15 +81,32 @@ summary(res)
 ```
 
 
-
+Most significantly expressed genes 
 ```{r}
 res <- res[order(res$padj),]
 head(res,10)
 
 ```
 
+Loading DESeq results 
+```{r}
+DE.res <- read.csv("DE_Group1VGroup2_results_corrected2.csv", header = TRUE, row.names = 1)
+DE.res
+```
 
 
+Plotting DESeq2 results in a volcano plot
+```{r}
+ggplot(DE.res, aes(x = log2FoldChange, y = -log10(padj))) +
+  geom_point(size = 1, aes(color = ifelse(padj < 0.05, ifelse(log2FoldChange > 0, "red", "blue"), "black"))) +
+  labs(x = "log2 Fold Change", y = "-log10(Adjusted p-value)", title = "Diff Gene Expression of Drug-Resistant Group") +
+  scale_color_manual(values = c("black", "blue", "red")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+GSEA Enrichment analysis 
 ```{r}
 # loading packages
 install.packages("data.table")
@@ -107,18 +117,6 @@ library(fgsea)
 BiocManager::install("qusage")
 library(qusage)
 ```
-
-
-
-```{r}
-# loading the Gene Set collection (C5 from GO, getting BP)
-
-gmt.file <- read.gmt("c5.go.bp.v7.4.symbols.gmt") # loading DESeq results
-
-DE.res <- read.csv("DE_Cluster1VCluster2_results.csv", header = TRUE, row.names = 1)
-DE.res
-```
-
 
 
 ```{r}
@@ -134,47 +132,35 @@ DE.ranks <- setNames(DE.res.ranked$log2FoldChange, row.names(DE.res.ranked))
 ```
 
 
-
 ```{r}
-# running fgsea and getting top 10 mostly differentially regulated BP gene sets
-fgseaRes <- fgsea(gmt.file, DE.ranks, minSize=15, maxSize=500) # min and max size of gene sets
+# loading the Gene Set collection (C5 from GO, getting BP)
+
+gmt.file <- read.gmt("c5.go.bp.v7.4.symbols.gmt") 
+
 ```
 
 
+```{r}
+# running fgsea and getting top 10 mostly differentially regulated BP gene sets
+
+fgseaRes <- fgsea(gmt.file, DE.ranks, minSize=15, maxSize=500) 
+```
+
 
 ```{r}
+# getting top 10 enriched pathways 
+
 top10_pathways <- head(fgseaRes[order(padj)],10)
+
 top10_pathways
 ```
 
 
-
 ```{r}
- # saving results to csv
+# saving results to csv
 
-# Convert fgseaRes to a data frame
-fgseaRes_df <- as.data.frame(fgseaRes)
+top10 <- top10_pathways[, c("pathway", "pval", "padj", "log2err", "ES", "NES", "size")]
 
- write.csv(fgseaRes_df, file="gsea_results.csv")
+write.csv(top10, "top10GSEA_pathways.csv")
 ```
 
-
-
-```{r}
-fgseaRes
-```
-
-
-
-```{r}
-library(ggplot2)
-# plotting top 2 mostly upregulated BP gene sets - based on previous exercise (top 2 padj and positive enrichmentscore)
-down <- plotEnrichment(gmt.file[["GOBP_DETECTION_OF_STIMULUS_INVOLVED_IN_SENSORY_PERCEPTION"]],DE.ranks) + labs(title="GOBP_DETECTION_OF_STIMULUS_INVOLVED_IN_SENSORY_PERCEPTION") + theme(text = element_text(size=20))
-down
-```
-
-
-
-```{r}
-
-```
