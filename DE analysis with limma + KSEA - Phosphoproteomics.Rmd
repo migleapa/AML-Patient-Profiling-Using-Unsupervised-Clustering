@@ -1,82 +1,43 @@
 ---
-title: "R Notebook"
+title: "DE with limma + KSEA"
 output: html_notebook
 ---
 
-Loading k-mean clustering proteomics datasets 
 
 ```{r}
 setwd("~/Documents/MSc Genomics Data Science/Research Project (ML)/Project Data")
 ```
 
-
-
 ```{r}
-# Open file
-df.phosphoprot <- read.csv("DSS_imp_phosphCORRECTED.csv")
-df.pho <- read.csv("DSS_imp_phospho_clusters copy.csv")
-df.transcripts <- read.csv("DSS_imp_transcriptomics_clusters_norm.csv", row.names = 1)
-df.dss <- read.csv("DSS_diff_expr.csv")
-df.phospho_redused <- read.csv("phospho_redused.csv")
-df.phospho_MLL <- read.csv("MLL_Phospho.csv")
-df.phospho_del7 <- read.csv("del7_phospho.csv")
-df.phospho_MLL_red <- read.csv("MLL_Phospho redused.csv")
-df.phospho_3 <- read.csv("DSS_imp_phosph3_clusters.csv")
-df.dss.red.phospho <- read.csv("DSS_redused_phospho.csv")
+# Opening file
+df.phosphoprot <- read.csv("DSS_imp_phospho_clusters.csv")
 
-
-df.rna <- read.csv("DSS_imp_transcriptomics_CORRECTED.csv")
-
-df.dss.phospho.prolif <- read.csv("DSS_imp_phosphCORRECTED prolif excluded .csv")
-
-# View the file
+# Viewing the file
 head(df.phosphoprot)
-head(df.pho)
-head(df.transcripts)
-head(df.dss)
-head(df.phospho_redused)
-head(df.phospho_MLL)
-head(df.phospho_del7)
-head(df.phospho_MLL_red)
-head(df.phospho_3)
-head(df.dss.red.phospho)
-
-head(df.rna)
-head(df.dss.phospho.prolif)
 ```
 
 Data normalization
 
 
 ```{r}
-# log transforming and normalizing the data
+# Log-transforming and normalizing the data
 
 # Data distribution before normalization
-boxplot(df.dss.phospho.prolif[,2:ncol(df.dss.phospho.prolif)],las=3, main="Data distribution before normalization")
+boxplot(df.phosphoprot[,2:ncol(df.phosphoprot)],las=3, main="Data distribution before normalization")
 
 # Log2 transform and normalize data by scaling
-df.norm <- data.frame(site=df.dss.phospho.prolif$sites, 
-                      scale((log2(df.dss.phospho.prolif[,2:ncol(df.dss.phospho.prolif)]))))
+df.norm <- data.frame(site=df.phosphoprot$sites, 
+                      scale((log2(df.phosphoprot[,2:ncol(df.phosphoprot)]))))
 
 # Data distribution after normalization
 #boxplot(df.norm[,2:ncol(df.norm)],las=3, main="Data distribution after Log transformation and normalization")
 
 df.norm
-
-#write.csv(df.norm, file = "top_genes_new.csv")
 ```
 
-
+Statistical Analysis - limma function
 ```{r}
-write.csv(data, 'C:/path/to/your/output.csv', row.names = FALSE)
-```
 
-
-
-Statistical Analysis
-
-
-```{r}
 install.packages("BiocManager")
 library(BiocManager)
 BiocManager::install("limma")
@@ -93,18 +54,17 @@ compare.clusters.by.limma <- function(df.to.compare, log.data=TRUE){
   
   # Compare by limma
   #
-  # first column is protein or ppsite names
+  # first column is ppsite names
   # first set of samples are control
   # second set of samples are the test
   
   nc <- ncol(df.to.compare)
-  #replicates <- (nc-1)/2
   df.s <- df.to.compare[,2:nc]
   
   if (log.data==TRUE | log.data==T){ 
     
     df.s <- scale(log2(df.s))
-    # df.s <- voom(df.s)
+   
     }
 
   df.s1 <- data.frame(outcome=matrix(nrow=(36)))
@@ -116,11 +76,7 @@ compare.clusters.by.limma <- function(df.to.compare, log.data=TRUE){
 
   
   df.ss <- rbind(df.s1,df.s2)
-  
-  #des <- factor(ifelse(df.ss$outcome == "cluster_1", "1",
-           # ifelse(df.ss$outcome == "cluster_2", "2", "3")))
- 
-  
+   
   des <- factor(ifelse(df.ss$outcome=="cluster_1" ,"1",
                        "2"))
 
@@ -132,42 +88,23 @@ compare.clusters.by.limma <- function(df.to.compare, log.data=TRUE){
   colnames(design) <- c("cluster_1","cluster_2")
   contrast.matrix <- makeContrasts(
                     cluster_1 - cluster_2,
-                    levels=design) # cluster 1 is larger than the rest if positive value 
+                    levels=design) 
   
 
-  #df.s ==== proteomics data
   fit <- lmFit(df.s,design)
   fit2 <- contrasts.fit(fit, contrast.matrix)
   fit2 <- eBayes(fit2)
   pvals <- data.frame(fit2$p.value)
   fvals <- data.frame(fit2$coefficients)
-  
-  
-  
+
+
   df.xx <- data.frame(protein=df.to.compare[,1],
                       differnces=fvals,
                       pvalues=pvals)
   colnames(df.xx) <- c(colnames(df.to.compare)[1],"difference.cluster_1.vs.cluster_2","pvalues")
   
-  # Create a data frame with protein IDs, differences, and p-values
- # df.xx <- data.frame(
-   # protein = df.to.compare[, 1],
-   # difference_cluster_1_vs_cluster_2 = fvals[, "cluster_1"] - fvals[, "cluster_2"],
-   # difference_cluster_1_vs_cluster_3 = fvals[, "cluster_1"] - fvals[, "cluster_3"],
-   # difference_cluster_2_vs_cluster_3 = fvals[, "cluster_2"] - fvals[, "cluster_3"],
-   # pvalues = pvals[, "cluster_1"]  # Adjust this accordingly based on your specific contrast of interest
-#)
-
-# Rename columns
-#colnames(df.xx) <- c(
- # colnames(df.to.compare)[1],
- # "difference_cluster_1_vs_cluster_2",
- # "difference_cluster_1_vs_cluster_3",
-  #"difference_cluster_2_vs_cluster_3",
- # "pvalues"
-#)
-  
-  df.xx$qval <- p.adjust(df.xx$pvalues, method = "fdr")
+ 
+df.xx$qval <- p.adjust(df.xx$pvalues, method = "fdr")
   
   df.xx[,1] <-
     
@@ -175,22 +112,19 @@ compare.clusters.by.limma <- function(df.to.compare, log.data=TRUE){
 }  
 ```
 
-
-
+Running limma function  and sacing the results
 ```{r}
-# Analyse by Limma an save the data in a .csv file
+
 df.limma.results <- compare.clusters.by.limma(df.to.compare = df.norm,log.data = F)
 
-write.csv(df.limma.results, "Results of limma analysis of phopho Cluster 1 vs Cluster 2prolif.csv", row.names = F)
-
-#write.csv(df.limma.results, "Results of limma analysis of phopho Cluster 2.csv", row.names = F)
-
+write.csv(df.limma.results, "Results of limma analysis of phopho Cluster 1 vs Cluster 2.csv", row.names = F)
 ```
 
 
 
+# Viewing the top most significant hits:
 ```{r}
-# View the top most significant hits:
+
 head(df.limma.results[order(df.limma.results$difference.cluster_1.vs.cluster_2),])
 
 # Select and view significant hits
@@ -224,24 +158,20 @@ pplot <- ggplot(df.limma.results,aes(x=difference.cluster_1.vs.cluster_2,y=-log1
 pplot
 ```
 
-
+Get significantly upregulated sites 
 ```{r}
 df.significant.increased[order(df.significant.increased$pvalues),]  
-
-df.significant.increased
 
 ```
 
 
-Kinase substrate enrichment to identify changes in kinase activities
+Kinase substrate enrichment (KSEA) analysis to identify changes in kinase activities
 
 ```{r}
-# Read data
-df_c1 <- read.csv("Results of limma analysis of phopho Cluster 1 vs Cluster 2prolif.csv")
-#df_c2 <- read.csv("Results of limma analysis of phopho Cluster 2.csv")
+# Reading the limma results data
+df <- read.csv("Results of limma analysis of phopho Cluster 1 vs Cluster 2.csv")
 
-df_c1
-#df_c2
+df
 ```
 
 ```{r}
@@ -328,25 +258,28 @@ ksear.s <- function(df.fold, ks_db){
 ```
 
 
-
+# Calling the ksear.s function to carry out KSEA
 ```{r}
-# Call the ksear.s function to carry out KSEA
-df.k_c1 <- ksear.s(data.frame(sites=df_c1$site, df_c1$difference.cluster_1.vs.cluster_2),ks_db="pdts")
-#df.k_c2 <- ksear.s(data.frame(sites=df_c2$site, df_c2$difference.cluster_1.vs.cluster_2),ks_db="pdts")
+
+df.k <- ksear.s(data.frame(sites=df$site, df$difference.cluster_1.vs.cluster_2),ks_db="pdts")
+
 
 # View the top kinases $
-df.k_c1[order(df.k_c1$pvalue),]
+df.k[order(df.k$pvalue),]
 
-#df.k_c2[order(df.k_c2$pvalue),]
+#df.k[order(df.k$pvalue),]
 ```
+
+
 Enrichment in main kinases (based on positive z score)
 
 Visualization of KSEA results
 
 ```{r}
-# select significant
+# Selecting significant
 k.selected <- subset(df.k,df.k$pvalues<.01)
-# Draw volcano plot and visualize it
+
+# Drawing volcano plot and visualize it
 plot.ksea.volcano <- ggplot(df.k,aes(x=zscores,y=-log10(qval)))+
   geom_point(aes(size=m))+
   geom_text(data = k.selected,aes(x=zscores,y=-log10(qval),label=kinases),hjust=-0.2)+
@@ -355,648 +288,17 @@ plot.ksea.volcano
 
 ```
 
+Getting significant kinases 
+
 ```{r}
-significant_kinases_c1 <- df.k_c1[df.k_c1$qval < 0.05, ]
-significant_kinases_c2 <- df.k_c2[df.k_c2$qval < 0.05, ]
+significant_kinases<- df.k[df.k1$qval < 0.05, ]
 
-significant_kinases_c1 <- significant_kinases_c1[order(significant_kinases_c1$qval), ]
-significant_kinases_c2 <- significant_kinases_c2[order(significant_kinases_c2$qval), ]
+significant_kinases <- significant_kinases[order(significant_kinases$qval), ]
 
-significant_kinases_c1 <- head(significant_kinases_c1, -1)
-significant_kinases_c2 <- head(significant_kinases_c2, -1)
-
-
+significant_kinases <- head(significant_kinases, -1)
 ```
 
 
-```{r}
-# Split the string in the first row by ';;'
-ARAF_phosphosites <- strsplit(as.character(significant_kinases_c1$allsites[1]), ";;")[[1]]
-ARAF_phosphosites <- paste0(ARAF_phosphosites, ";")
-
-MAPK14_phosphosites <- strsplit(as.character(significant_kinases_c1$allsites[2]), ";;")[[1]]
-MAPK14_phosphosites <- paste0(MAPK14_phosphosites, ";")
-
-PDGFRB_phosphosites <- strsplit(as.character(significant_kinases_c1$allsites[3]), ";;")[[1]]
-PDGFRB_phosphosites <- paste0(PDGFRB_phosphosites, ";")
-PDGFRB_phosphosites
-df.phosphoprot
-```
-
-
-```{r}
-filtered_PDGFRB <- df.phosphoprot %>%
-  filter(sites %in% PDGFRB_phosphosites)
-
-filtered_PDGFRB
-```
-
-```{r}
-filtered_ARAF <- df.phosphoprot %>%
-  filter(sites %in% ARAF_phosphosites)
-
-filtered_ARAF
-```
-
-
-
-```{r}
-filtered_MAPK14 <- df.phosphoprot %>%
-  filter(sites %in% MAPK14_phosphosites)
-
-filtered_MAPK14
-```
-
-
-
-```{r}
-# List of dataframes
-df_list <- list(filtered_PDGFRB, filtered_ARAF, filtered_MAPK14)
-
-# Combine all dataframes by rows
-combined_df <- do.call(rbind, df_list)
-# Print the merged dataframe
-
-combined_df <- distinct(combined_df)
-
-combined_df
-write.csv(combined_df, file = "top3kinase_sites.csv")
-
-write.csv(filtered_MAPK14, file = "filtered_MAPK14_sites.csv")
-
-```
-
-
-
-```{r}
-merged_df_1_2 <- merge(df1, df2, by = "id", all = TRUE)
-```
-
-
-
-
-
-
-```{r}
-my_palette <- colorRampPalette(c("blue", "white", "red"))(100)
-
-# Prepare data matrix for heatmap
-z_score_matrix_c1 <- matrix(significant_kinases_c1$zscores, nrow = nrow(significant_kinases_c1), ncol = 1, byrow = TRUE)
-
-# Prepare data matrix for heatmap
-z_score_matrix_c2 <- matrix(significant_kinases_c2$zscores, nrow = nrow(significant_kinases_c2), ncol = 1, byrow = TRUE)
-
-combined_z_score_matrix <- cbind(z_score_matrix_c2, z_score_matrix_c1)
-
-rownames(combined_z_score_matrix) <- significant_kinases_c1$kinases
-combined_z_score_matrix
-
-```
-
-
-
-```{r}
-# Install packages if not already installed
-install.packages("gplots")
-install.packages("RColorBrewer")
-
-# Load packages
-library(gplots)
-library(RColorBrewer)
-
-install.packages("ComplexHeatmap")
-install.packages("circlize")
-library(ComplexHeatmap)
-library(circlize)
-
-```
-
-
-
-```{r}
-
-# Define groups for samples
-sample_groups <- c("Sensitive", "Resistant")
-
-# Define color for annotation bars
-group_colors <- list(Group = c(Sensitive = "#F8766D", Resistant = "#00BFC4"))
-
-# Create HeatmapAnnotation object
-ha <- HeatmapAnnotation(Group = sample_groups, col = group_colors)
-
-# Create the heatmap
-heatmap <- Heatmap(
-  combined_z_score_matrix,
-  name = "Z-score",  # Title for the heatmap color legend
-  col = colorRamp2(c(min(combined_z_score_matrix), 0, max(combined_z_score_matrix)), c("steelblue3", "white", "indianred")),  # Color scale
-  top_annotation = ha,  # Add the column annotations
-  show_row_names = TRUE,  # Show row names (kinase names)
-  show_column_names = TRUE,  # Show column names (sample names)
-  row_title = "Kinases",  # Title for the rows
-  # column_title = "Groups",  # Title for the columns (optional)
-  heatmap_legend_param = list(title = "Z-score"),  # Legend parameters
-  column_names_gp = gpar(fontsize = 12),  # Font size for column names
-  row_names_gp = gpar(fontsize = 12),  # Font size for row names
-  cluster_rows = FALSE,
-  width = unit(3, "cm"),  # Set width of the heatmap
-  height = unit(7, "cm")  # Set height of the heatmap
-)
-
-heatmap
-```
-
-Clustering based on top phosphosites  
-
-
-```{r}
-top_phospho <- read.csv("scaled_phospho_PCA_top_markers.csv")
-top_phospho
-```
-
-
-
-
-```{r}
-
-library(ggplot2)
-library(factoextra)
-
-# Identify the columns for each group
-group1_cols <- grep("_cluster1$", colnames(top_phospho), value = TRUE)
-group2_cols <- grep("_cluster2$", colnames(top_phospho), value = TRUE)
-
-# Combine into a single dataframe and transpose it for PCA
-df_transposed <- t(top_phospho[, c(group1_cols, group2_cols)])
-
-# Perform PCA
-pca_result <- prcomp(df_transposed, center = TRUE, scale. = TRUE)
-
-# Create a dataframe for PCA results
-pca_data <- as.data.frame(pca_result$x)
-pca_data$Group <- rep(c("Resistant", "Sensitive"), c(length(group1_cols), length(group2_cols)))
-
-# Plot PCA results using ggplot2
-ggplot(pca_data, aes(x = PC1, y = PC2, color = Group)) +
-  geom_point(size = 2) +  # Adjust the size of the points as needed
-  theme_minimal() +
-  labs(
-       x = "PC 1",
-       y = "PC 2") +
-  scale_color_manual(values = c("Resistant" = "#00BFC4", "Sensitive" = "#F8766D")) +
-  theme(
-    text = element_text(size = 18),  # Set the text size to 18 for all text elements
-    axis.title = element_text(size = 18),  # Set axis titles size
-    axis.text = element_text(size = 18)  # Set axis text size
-  )
-
-```
-
-
-```{r}
-df.significant
-```
-
-
-
-```{r}
-# Create a list of values to check against
-value_list <- c("SBF1(T114);", "PTDSS1(S11);", "TSC22D4(S370);", "PTGER4(S245);", "FMNL1(S624);",
-                "ANK1(Y1386);", "ZEB2(S1115);ZEB2(S1124);", "ZEB2(S1122);ZEB2(Y1112);",    "PNISR(T297);PNISR(S290);","AHNAK(S5739);", "PCGF6(S69);DCAF10(S131);PJA2(S55);CACNA1A(S2167);", "IKZF1(T61);")
-
-# Filter the dataframe based on values in `column_name` matching `value_list`
-filtered_df <- df.significant %>% filter(site %in% value_list)
-
-# View the filtered dataframe
-print(filtered_df)
-
-```
-
-
-
-
-```{r}
-# Function to trim strings at the first occurrence of ";"
-trim_strings <- function(x) {
-  sapply(x, function(y) {
-    # Convert to character if not already
-    y <- as.character(y)
-    strsplit(y, ";")[[1]][1]
-  })
-}
-
-# Apply the function to all columns of the dataframe
-df_trimmed <- as.data.frame(lapply(filtered_df, trim_strings), stringsAsFactors = FALSE)
-
-# Remove row names
-row.names(df_trimmed) <- NULL
-
-# View the trimmed dataframe
-print("Trimmed DataFrame:")
-print(df_trimmed)
-```
-
-
-```{r}
-# Rename the second column to "Resistant"
-colnames(df_trimmed)[2] <- "Resistant"
-
-# Remove the last two columns
-df_trimmed <- df_trimmed[, -c(ncol(df_trimmed)-1, ncol(df_trimmed))]
-
-# View the modified dataframe
-print("Modified DataFrame:")
-print(df_trimmed)
-```
-
-
-
-```{r}
-# Ensure the "Resistant" column is numeric
-df_trimmed$Resistant <- as.numeric(as.character(df_trimmed$Resistant))
-
-# Check the conversion
-summary(df_trimmed$Resistant)
-
-# Create the "Sensitive" column with sign reversal
-df_trimmed$Sensitive <- ifelse(is.na(df_trimmed$Resistant), NA, -df_trimmed$Resistant)
-
-# View the modified dataframe
-print("Modified DataFrame:")
-print(df_trimmed)
-
-df_trimmed <- df_trimmed[, c(1,3,2)]
-df_trimmed
-```
-
-
-```{r}
-library(ComplexHeatmap)
-library(circlize)  # For colorRamp2 function
-
-# Convert dataframe to matrix format for heatmap
-df_trimmed_score_matrix <- as.matrix(df_trimmed[, c("Sensitive", "Resistant")])
-rownames(df_trimmed_score_matrix) <- df_trimmed$site
-
-# Define groups for samples
-sample_groups <- factor(c("Resistant", "Sensitive"), levels = c("Resistant", "Sensitive"))
-
-# Define color for annotation bars
-group_colors <- list(Group = c(Resistant = "#00BFC4", Sensitive = "#F8766D"))
-
-# Create HeatmapAnnotation object for the column annotations
-ha <- HeatmapAnnotation(
-  Group = sample_groups, 
-  col = group_colors,
-  annotation_name_gp = gpar(fontsize = 0),  # Set font size to 0 to hide names
-  show_legend = FALSE  # Hide the annotation legend
-)
-
-# Create and display the heatmap
-heatmap <- Heatmap(
-  df_trimmed_score_matrix,
-  name = "logFC",  # Title for the heatmap color legend
-  col = colorRamp2(c(min(df_trimmed_score_matrix), 0, max(df_trimmed_score_matrix)), c("steelblue3", "white", "indianred")),  # Color scale
-  top_annotation = ha,  # Add the column annotations
-  show_row_names = TRUE,  # Show row names (kinase names)
-  show_column_names = FALSE,  # Do not show column names (sample names)
-  row_title = "Phosphoproteins",  # Title for the rows
-  heatmap_legend_param = list(title = "logFC"),  # Legend parameters for heatmap
-  column_names_gp = gpar(fontsize = 12),  # Font size for column names
-  row_names_gp = gpar(fontsize = 12),  # Font size for row names
-  cluster_rows = TRUE,  # Cluster rows
-  show_row_dend = FALSE,  # Hide the row dendrogram
-  width = unit(3, "cm"),  # Set width of the heatmap
-  height = unit(7, "cm")  # Set height of the heatmap
-)
-
-# Display the heatmap
-draw(heatmap)
-```
-
-
-
-```{r}
-# Load necessary libraries
-library(ComplexHeatmap)
-library(circlize)  # For colorRamp2
-library(grid)      # For unit function, gTree, etc.
-library(gridExtra) # For grid.arrange
-
-# Create Heatmap 1
-df_trimmed_score_matrix <- as.matrix(df_trimmed[, c("Sensitive", "Resistant")])
-rownames(df_trimmed_score_matrix) <- df_trimmed$site
-
-sample_groups1 <- factor(c("Resistant", "Sensitive"), levels = c("Resistant", "Sensitive"))
-group_colors1 <- list(Group = c(Resistant = "#00BFC4", Sensitive = "#F8766D"))
-
-ha1 <- HeatmapAnnotation(Group = sample_groups2, col = group_colors2)
-
-heatmap1 <- Heatmap(
-  df_trimmed_score_matrix,
-  name = "logFC",
-  col = colorRamp2(c(min(df_trimmed_score_matrix), 0, max(df_trimmed_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha1,
-  show_row_names = TRUE,
-  show_column_names = FALSE,
-  row_title = "Phosphoproteins",
-  heatmap_legend_param = list(title = "log2FC"),
-  column_names_gp = gpar(fontsize = 12),
-  row_names_gp = gpar(fontsize = 12),
-  cluster_rows = TRUE,
-  show_row_dend = FALSE,
-  width = unit(3, "cm"),
-  height = unit(7, "cm")
-)
-
-# Create Heatmap 2
-sample_groups2 <- c("Sensitive", "Resistant")
-group_colors2 <- list(Group = c(Sensitive = "#F8766D", Resistant = "#00BFC4"))
-
-ha2 <- HeatmapAnnotation(Group = sample_groups2, col = group_colors2)
-
-heatmap2 <- Heatmap(
-  combined_z_score_matrix,
-  name = "Z-score",
-  col = colorRamp2(c(min(combined_z_score_matrix), 0, max(combined_z_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha2,
-  show_row_names = TRUE,
-  show_column_names = TRUE,
-  row_title = "Kinases",
-  heatmap_legend_param = list(title = "Z-score"),
-  column_names_gp = gpar(fontsize = 12),
-  row_names_gp = gpar(fontsize = 12),
-  cluster_rows = FALSE,
-  width = unit(3, "cm"),
-  height = unit(7, "cm")
-)
-
-# Save heatmaps as grobs
-heatmap1_grob <- grid.grabExpr(draw(heatmap1, merge_legend = TRUE, heatmap_legend_side = "right"))
-heatmap2_grob <- grid.grabExpr(draw(heatmap2, merge_legend = TRUE, heatmap_legend_side = "right"))
-
-# Capture heatmaps as grobs
-heatmap1_grob <- grid.grabExpr(draw(heatmap1, merge_legend = TRUE, heatmap_legend_side = "right"))
-heatmap2_grob <- grid.grabExpr(draw(heatmap2, merge_legend = TRUE, heatmap_legend_side = "right"))
-
-# Create text labels
-label_a <- textGrob("a", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 22, fontface = "bold"))  # Increased font size
-label_b <- textGrob("b", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 22, fontface = "bold"))  # Increased font size
-
-# Add labels to each heatmap grob
-heatmap1_labeled <- arrangeGrob(heatmap1_grob, top = label_a)
-heatmap2_labeled <- arrangeGrob(heatmap2_grob, top = label_b)
-
-
-
-# Combine the heatmaps side by side
-combined_plot <- grid.arrange(
-  heatmap1_labeled,
-  heatmap2_labeled,
-  ncol = 2,
-  widths = c(1, 1)
-)
-
-# Save the combined plot to a PDF file
-ggsave("kinase and phospho heatmaps.pdf", plot = combined_plot, width = 20, height = 12, units = "in")
-```
-
-
-
-
-```{r}
-# Load necessary libraries
-library(ComplexHeatmap)
-library(circlize)  # For colorRamp2
-library(grid)      # For unit function, gTree, etc.
-library(gridExtra) # For grid.arrange
-library(ggplot2)   # For ggplot2
-
-# Define annotations
-sample_groups1 <- factor(c("Sensitive", "Resistant"), levels = c("Sensitive", "Resistant"))
-group_colors1 <- list(Group = c(Resistant = "#00BFC4", Sensitive = "#F8766D"))
-
-sample_groups2 <- factor(c("Sensitive", "Resistant"), levels = c("Sensitive", "Resistant"))
-group_colors2 <- list(Group = c(Sensitive = "#F8766D", Resistant = "#00BFC4"))
-
-# Create Heatmap 1
-ha1 <- HeatmapAnnotation(Group = sample_groups1, col = group_colors1, show_legend = FALSE)
-
-heatmap1 <- Heatmap(
-  df_trimmed_score_matrix,
-  name = "logFC",
-  col = colorRamp2(c(min(df_trimmed_score_matrix), 0, max(df_trimmed_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha1,
-  show_row_names = TRUE,
-  show_column_names = FALSE,
-  row_title = "Phosphoproteins",
-  row_title_gp = gpar(fontsize = 14),
-  heatmap_legend_param = list(title = "log2FC"),
-  column_names_gp = gpar(fontsize = 13),
-  row_names_gp = gpar(fontsize = 13),
-  cluster_rows = TRUE,
-  show_row_dend = FALSE,
-  width = unit(5, "cm"),
-  height = unit(9, "cm")
-)
-
-# Create Heatmap 2
-ha2 <- HeatmapAnnotation(Group = sample_groups2, col = group_colors2, show_legend = FALSE)
-
-heatmap2 <- Heatmap(
-  combined_z_score_matrix,
-  name = "Z-score",
-  col = colorRamp2(c(min(combined_z_score_matrix), 0, max(combined_z_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha2,
-  show_row_names = TRUE,
-  show_column_names = TRUE,
-  row_title = "Kinases",
-  row_title_gp = gpar(fontsize = 14),
-  heatmap_legend_param = list(title = "Z-score"),
-  column_names_gp = gpar(fontsize = 13),
-  row_names_gp = gpar(fontsize = 13),
-  cluster_rows = FALSE,
-  width = unit(5, "cm"),
-  height = unit(9, "cm")
-)
-
-# Capture heatmaps as grobs
-heatmap1_grob <- grid.grabExpr(draw(heatmap1, merge_legend = TRUE, heatmap_legend_side = "right"))
-heatmap2_grob <- grid.grabExpr(draw(heatmap2, merge_legend = TRUE, heatmap_legend_side = "right"))
-
-# Create text labels
-label_a <- textGrob("a", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-label_b <- textGrob("b", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-
-# Add labels to each heatmap grob
-heatmap1_labeled <- arrangeGrob(heatmap1_grob, top = label_a)  # Label B for Heatmap 2
-heatmap2_labeled <- arrangeGrob(heatmap2_grob, top = label_b)  # Label A for Heatmap 1
-
-# Perform PCA
-group1_cols <- grep("_cluster1$", colnames(top_phospho), value = TRUE)
-group2_cols <- grep("_cluster2$", colnames(top_phospho), value = TRUE)
-df_transposed <- t(top_phospho[, c(group1_cols, group2_cols)])
-pca_result <- prcomp(df_transposed, center = TRUE, scale. = TRUE)
-pca_data <- as.data.frame(pca_result$x)
-pca_data$Group <- rep(c("Resistant", "Sensitive"), c(length(group1_cols), length(group2_cols)))
-
-# Plot PCA results using ggplot2
-pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group)) +
-  geom_point(size = 2.5) +
-  theme_minimal() +
-  labs(
-    x = "PC 1",
-    y = "PC 2"
-  ) +
-  scale_color_manual(values = c("Resistant" = "#00BFC4", "Sensitive" = "#F8766D")) +
-  theme(
-    text = element_text(size = 18),
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size = 15)
-  )
-
-# Capture PCA plot as grob
-pca_plot_grob <- ggplotGrob(pca_plot)
-
-# Create text label for PCA plot
-label_c <- textGrob("c", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-
-# Add label to PCA plot grob
-pca_plot_labeled <- arrangeGrob(pca_plot_grob, top = label_c)
-
-# Combine heatmaps and PCA plot side by side with swapped heatmaps
-combined_plot <- arrangeGrob(
-  heatmap1_labeled,  # Swapped positions
-  heatmap2_labeled,  # Swapped positions
-  pca_plot_labeled,
-  ncol = 3,
-  widths = c(1, 1, 1)
-)
-
-# Save the combined plot to a PDF file
-ggsave("new_kinase_phospho_heatmaps_and_PCA.pdf", plot = combined_plot, width = 15, height = 5.5, units = "in")
-```
-
-```{r}
-# Load necessary libraries
-library(ComplexHeatmap)
-library(circlize)  # For colorRamp2
-library(grid)      # For unit function, gTree, etc.
-library(gridExtra) # For grid.arrange
-library(ggplot2)   # For ggplot2
-
-# Define annotations
-sample_groups1 <- factor(c("Sensitive", "Resistant"), levels = c("Sensitive", "Resistant"))
-group_colors1 <- list(Group = c(Resistant = "#00BFC4", Sensitive = "#F8766D"))
-
-sample_groups2 <- factor(c("Sensitive", "Resistant"), levels = c("Sensitive", "Resistant"))
-group_colors2 <- list(Group = c(Sensitive = "#F8766D", Resistant = "#00BFC4"))
-
-# Create Heatmap 1 (originally heatmap 2, now labeled as 'a')
-ha1 <- HeatmapAnnotation(Group = sample_groups2, col = group_colors2, show_legend = FALSE)
-
-heatmap1 <- Heatmap(
-  combined_z_score_matrix,
-  name = "Z-score",
-  col = colorRamp2(c(min(combined_z_score_matrix), 0, max(combined_z_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha1,
-  show_row_names = TRUE,
-  show_column_names = TRUE,
-  row_title = "Kinases",
-  row_title_gp = gpar(fontsize = 14),
-  heatmap_legend_param = list(title = "Z-score"),
-  column_names_gp = gpar(fontsize = 13),
-  row_names_gp = gpar(fontsize = 13),
-  cluster_rows = FALSE,
-  width = unit(5, "cm"),
-  height = unit(9, "cm")
-)
-
-# Create Heatmap 2 (originally heatmap 1, now labeled as 'b')
-ha2 <- HeatmapAnnotation(Group = sample_groups1, col = group_colors1, show_legend = FALSE)
-
-heatmap2 <- Heatmap(
-  df_trimmed_score_matrix,
-  name = "logFC",
-  col = colorRamp2(c(min(df_trimmed_score_matrix), 0, max(df_trimmed_score_matrix)), c("steelblue3", "white", "indianred")),
-  top_annotation = ha2,
-  show_row_names = TRUE,
-  show_column_names = FALSE,
-  row_title = "Phosphoproteins",
-  row_title_gp = gpar(fontsize = 14),
-  heatmap_legend_param = list(title = "log2FC"),
-  column_names_gp = gpar(fontsize = 13),
-  row_names_gp = gpar(fontsize = 13),
-  cluster_rows = TRUE,
-  show_row_dend = FALSE,
-  width = unit(5, "cm"),
-  height = unit(9, "cm")
-)
-
-# Capture heatmaps as grobs
-heatmap1_grob <- grid.grabExpr(draw(heatmap1, merge_legend = TRUE, heatmap_legend_side = "right"))
-heatmap2_grob <- grid.grabExpr(draw(heatmap2, merge_legend = TRUE, heatmap_legend_side = "right"))
-
-# Create text labels
-label_a <- textGrob("a", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-label_b <- textGrob("b", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-
-# Add labels to each heatmap grob
-heatmap1_labeled <- arrangeGrob(heatmap1_grob, top = label_a)  # Label A for Heatmap 1
-heatmap2_labeled <- arrangeGrob(heatmap2_grob, top = label_b)  # Label B for Heatmap 2
-
-# Perform PCA
-group1_cols <- grep("_cluster1$", colnames(top_phospho), value = TRUE)
-group2_cols <- grep("_cluster2$", colnames(top_phospho), value = TRUE)
-df_transposed <- t(top_phospho[, c(group1_cols, group2_cols)])
-pca_result <- prcomp(df_transposed, center = TRUE, scale. = TRUE)
-pca_data <- as.data.frame(pca_result$x)
-pca_data$Group <- rep(c("Resistant", "Sensitive"), c(length(group1_cols), length(group2_cols)))
-
-# Plot PCA results using ggplot2
-pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group)) +
-  geom_point(size = 2.5) +
-  theme_minimal() +
-  labs(
-    x = "PC 1",
-    y = "PC 2"
-  ) +
-  scale_color_manual(values = c("Resistant" = "#00BFC4", "Sensitive" = "#F8766D")) +
-  theme(
-    text = element_text(size = 18),
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size = 15)
-  )
-
-# Capture PCA plot as grob
-pca_plot_grob <- ggplotGrob(pca_plot)
-
-# Create text label for PCA plot
-label_c <- textGrob("c", x = unit(0.02, "npc"), y = unit(0.5, "npc"), hjust = 0, vjust = 1, gp = gpar(fontsize = 24, fontface = "bold"))
-
-# Add label to PCA plot grob
-pca_plot_labeled <- arrangeGrob(pca_plot_grob, top = label_c)
-
-# Combine heatmaps and PCA plot side by side with swapped heatmaps
-combined_plot <- arrangeGrob(
-  heatmap1_labeled,  # Swapped positions (now 'a')
-  heatmap2_labeled,  # Swapped positions (now 'b')
-  pca_plot_labeled,
-  ncol = 3,
-  widths = c(1, 1, 1)
-)
-
-# Save the combined plot to a PDF file
-#ggsave("kinase_phospho_heatmaps_and_PCA.pdf", plot = combined_plot, width = 15, height = 5.5, units = "in")
-
-combined_plot
-```
-
-
-
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
