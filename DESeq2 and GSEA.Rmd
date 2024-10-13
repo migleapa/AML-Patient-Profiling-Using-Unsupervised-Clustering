@@ -1,0 +1,180 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+ # installing the latest version of DEseq2
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+  BiocManager::install("DESeq2")
+
+```
+
+
+```{r}
+library(DESeq2)
+```
+
+
+```{r}
+
+setwd("~/Documents/MSc Genomics Data Science/Research Project (ML)/Project Data")
+
+# reading in the raw read counts
+ rawCounts <- read.csv("DSS_imp_transcriptomics_clusters56.csv", row.names=1)
+ 
+# Replace NA values with 0
+rawCounts[is.na(rawCounts)] <- 0
+
+# Round the values in the dataframe
+rawCounts <- as.data.frame(apply(rawCounts, 2, round))
+ 
+head(rawCounts)
+```
+
+
+```{r}
+# reading in the sample mappings (order must follow the same order as for the counts file)
+sampleData <- read.csv("sample_groups.csv", header = T)
+
+sampleData
+```
+
+
+```{r}
+# creating the DEseq2DataSet object - measuring the effect of the Patient, controlling for Group differences - two factor design
+dds <- DESeqDataSetFromMatrix(countData = rawCounts,
+                             colData = sampleData,
+                             design = ~ Group)
+
+```
+
+
+```{r}
+mm <- model.matrix( ~ Group + Patient, colData(dds))
+
+dds
+```
+
+
+```{r}
+# filtering low count genes: ensuring at least 5 samples with a count of 10 or more
+keep <- rowSums(counts(dds) >= 10) >= 5
+dds <- dds[keep,]
+
+```
+
+
+
+```{r}
+# running DESeq algo
+dds <- DESeq(dds, full = mm)
+```
+
+
+
+```{r}
+#  generating differential expression results
+res <- results(dds, contrast=list(c("Groupcluster2")))
+summary(res)
+```
+
+
+
+```{r}
+ # saving results to csv
+ write.csv(as.data.frame(res), file="DE_Cluster1VCluster2_results.csv")
+```
+
+
+
+```{r}
+res <- res[order(res$padj),]
+head(res,10)
+
+```
+
+
+
+```{r}
+# loading packages
+install.packages("data.table")
+library(data.table)
+
+BiocManager::install("fgsea")
+library(fgsea) 
+BiocManager::install("qusage")
+library(qusage)
+```
+
+
+
+```{r}
+# loading the Gene Set collection (C5 from GO, getting BP)
+
+gmt.file <- read.gmt("c5.go.bp.v7.4.symbols.gmt") # loading DESeq results
+
+DE.res <- read.csv("DE_Cluster1VCluster2_results.csv", header = TRUE, row.names = 1)
+DE.res
+```
+
+
+
+```{r}
+# ranking DE results
+
+# ordering DE results object by log2foldchange from high to low 
+
+DE.res.ranked <- DE.res[order(DE.res$log2FoldChange, decreasing = T), ]
+
+# creating a named vector of the ranks (with corresponding gene
+
+DE.ranks <- setNames(DE.res.ranked$log2FoldChange, row.names(DE.res.ranked))
+```
+
+
+
+```{r}
+# running fgsea and getting top 10 mostly differentially regulated BP gene sets
+fgseaRes <- fgsea(gmt.file, DE.ranks, minSize=15, maxSize=500) # min and max size of gene sets
+```
+
+
+
+```{r}
+top10_pathways <- head(fgseaRes[order(padj)],10)
+top10_pathways
+```
+
+
+
+```{r}
+ # saving results to csv
+
+# Convert fgseaRes to a data frame
+fgseaRes_df <- as.data.frame(fgseaRes)
+
+ write.csv(fgseaRes_df, file="gsea_results.csv")
+```
+
+
+
+```{r}
+fgseaRes
+```
+
+
+
+```{r}
+library(ggplot2)
+# plotting top 2 mostly upregulated BP gene sets - based on previous exercise (top 2 padj and positive enrichmentscore)
+down <- plotEnrichment(gmt.file[["GOBP_DETECTION_OF_STIMULUS_INVOLVED_IN_SENSORY_PERCEPTION"]],DE.ranks) + labs(title="GOBP_DETECTION_OF_STIMULUS_INVOLVED_IN_SENSORY_PERCEPTION") + theme(text = element_text(size=20))
+down
+```
+
+
+
+```{r}
+
+```
