@@ -1,0 +1,80 @@
+---
+title: "Kaplan-Meier survival analysis"
+output: html_notebook
+---
+
+```{r}
+install.packages("survival")
+library(survival)
+
+```
+
+Loading survival data 
+```{r}
+df.survival <- read.csv("Survival Analysis.csv")
+
+# event 1 - dead, 0 -alive
+```
+
+Fitting Kaplan-Meier survival curves
+```{r}
+fit_survival <- survfit(Surv(overallSurvival, vitalStatus) ~ Group, data = df.survival)
+```
+
+Summary stats
+```{r}
+summary(fit_survival)$table
+```
+
+Plotting Kaplan-Meier survival curves
+```{r}
+install.packages("survminer")
+library(survminer)
+library(ggplot2)
+```
+
+
+```{r}
+surv_plot <- ggsurvplot(fit_survival, data = df.survival, 
+                        legend.title = "Group", 
+                        surv.median.line = "hv", 
+                        legend = "right",  
+                        title = "The Kaplan-Meier Survival Estimate",  
+                        pval = TRUE, pval.size = 4, 
+                        pval.coord = c(1, 0.95), 
+                        palette = switched_palette,  
+                        ggtheme = theme_minimal(),
+                        ggpar = list(width = 5, height = 4),
+                        risk.table = TRUE,
+                        risk.table.height = 0.25) 
+
+
+# modifying the legend labels and increase text size
+
+surv_plot$plot <- surv_plot$plot + 
+  labs(x = "Time (years)") +
+  scale_color_manual(values = switched_palette, labels = c("Resistant", "Sensitive")) +
+  theme(
+    plot.title = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    plot.caption = element_text(size = 12)
+  )
+
+# removing x-axis label from risk table and increase text size
+surv_plot$table <- surv_plot$table + 
+  theme(
+   axis.title.x = element_blank(),  
+    axis.title.y = element_blank(),  
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 12))
+
+print(surv_plot)
+
+# saving plot 
+ggsave("survival_plot.jpg", plot = surv_plot, dpi = 300, width = 10, height = 8, units = "in")
+```
+```
