@@ -2,16 +2,17 @@
 
 ## Overview
 
-This study employs unsupervised clustering techniques to profile patients with acute myeloid leukemia (AML) based on their ex vivo responses to various chemotherapeutic and targeted oncology agents. Corresponding multi-omics datasets are utilized to establish a direct link between the molecular phenotypes of AML and their respective drug response profiles. Furthermore, survival analyses are conducted on the identified patient groups, with validation performed using an external dataset.
+This study employs unsupervised clustering method to profile patients with acute myeloid leukemia (AML) based on their ex vivo responses to various chemotherapeutic and targeted oncology agents. Corresponding multi-omics datasets are utilized to establish a direct link between the molecular phenotypes of AML and their respective drug response profiles. Furthermore, survival analyses are conducted on the identified patient groups, with validation performed using external datasets.
 
 ## Materials and Methods
 
 ### Datasets:<br>
-•	Drug Sensitivity Scores (DSS) - measuring the percentage of relative cell growth inhibition.<br>
+•	Drug Sensitivity Scores (DSS) - measuring the percentage of relative cell growth inhibition induced by various drugs.<br>
 •	Proliferation rates - representing the change in cell proliferation over time from untreated to treated conditions.<br>
-•	Proteomic and phosphoproteomic datasets - samples were analysed using an LC-MS/MS system.<br>
+•	Proteomic and phosphoproteomic datasets - patient samples were analysed using an LC-MS/MS system.<br>
 •	Genomic dataset - generated through targeted DNA NGS, focusing on 54 genes commonly mutated in AML.<br>
 •	Transcriptomics dataset – consisting of gene counts.<br>
+•	Clinical dataset – containing survival information.<br>
 
 ### Data pre-processing:<br>
 #### The DSS dataset was subjected to missing data imputation.<br>
@@ -89,6 +90,7 @@ Proteomic and phosphoproteomic analysis:<br>
 •	Upregulated and downregulated expressions were identified using log2 fold change (log2FC).<br>
 •	The most significantly expressed phosphoproteins were further analyzed using Kinase-Substrate Enrichment Analysis (KSEA).<br>
 •	Phosphosite annotation performed using the PhosphoSitePlus® Kinome Scan database.<br>
+•	No significantly differentially expressed proteins were found among the groups, so proteomic pathway enrichment analysis was not conducted.<br>
 [[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DE%20analysis%20with%20limma%20+%20KSEA%20-%20Phosphoproteomics.Rmd)<br>
 
 Transcriptomic analysis:<br>
@@ -107,7 +109,7 @@ Data visualization:<br>
 ### Evaluation of phosphoprotein markers as drug response predictors:<br>
 
 Feature Selection:<br>
-•	Phosphoproteins selected based on their effectiveness in separating patient groups from prior PCA analysis.<br>
+•	Phosphoproteins selected based on their effectiveness in separating patient groups from prior PCA analysis and used as features for the Random Forest model.<br>
 
 Labels:<br>
 •	Labels were derived from drug response data for 318 drugs that showed significant differential responses between groups.<br>
@@ -130,9 +132,10 @@ Survival Analysis:<br>
 •	Kaplan-Meier survival probabilities were computed, and survival plots were generated using the survminer R package (version 3.7.0). [[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/Kaplan-Meier%20survival%20analysis.Rmd)<br>
 
 Survival model validation:<br>
-•	The survival prediction model was validated using the external dataset for trancriptomic and phosphoproteomic markers.<br>
-•	The initial dataset's marker values were averaged to define classification thresholds for patient groups. These thresholds were then applied to classify new patients from external datasets based on their marker expressions.<br>
-•	Kaplan-Meier survival analysis was performed again on this new set of classified patients to assess survival differences between the newly classified groups.<br>
+•	TThe survival prediction model was validated using external transcriptomic and phosphoproteomic datasets.<br>
+•	Averaged marker values from the initial dataset were used to define classification thresholds.<br>
+•	These thresholds were applied to classify new patients based on their marker expressions.<br>
+•	Kaplan-Meier survival analysis was performed on the newly classified groups to evaluate survival differences.<br>
 
 
 ## Results
