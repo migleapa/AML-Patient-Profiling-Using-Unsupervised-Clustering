@@ -89,6 +89,7 @@ Proteomic and phosphoproteomic analysis:<br>
 •	Upregulated and downregulated expressions were identified using log2 fold change (log2FC).<br>
 •	The most significantly expressed phosphoproteins were further analyzed using Kinase-Substrate Enrichment Analysis (KSEA).<br>
 •	Phosphosite annotation performed using the PhosphoSitePlus® Kinome Scan database.<br>
+[[R code]](https://github.com/migleapa/AML-Patient-Profiling-Using-Unsupervised-Clustering/blob/main/DE%20analysis%20with%20limma%20+%20KSEA%20-%20Phosphoproteomics.Rmd)
 
 Transcriptomic analysis:<br>
 •	Conducted using the DESeq2 package (version 1.44.0).<br>
